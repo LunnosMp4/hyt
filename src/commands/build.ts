@@ -1,0 +1,85 @@
+import { Command } from 'commander';
+import fs from 'fs/promises';
+import path from 'path';
+import { runGradleBuild, hasGradleWrapper } from '../utils/gradle.js';
+import { getBuildOutputDir } from '../utils/paths.js';
+import { startSpinner, success, error, info } from '../utils/ui.js';
+import { GradleError } from '../utils/errors.js';
+
+export function buildCommand(): Command {
+  return new Command('build')
+    .description('Build your Hytale plugin')
+    .option('--copy', 'Copy built JAR to mods folder after build')
+    .action(async (options) => {
+      try {
+        const projectDir = process.cwd();
+        
+        console.log('\n🔨 Building Hytale plugin...\n');
+
+        // Check if we're in a valid plugin directory
+        if (!(await hasGradleWrapper(projectDir))) {
+          throw new GradleError(
+            'No Gradle wrapper found in current directory.\n' +
+            'Make sure you are in your plugin directory (e.g., Server/Plugins/your-plugin/)'
+          );
+        }
+
+        // Run Gradle build
+        info('Running Gradle build...\n');
+        await runGradleBuild(projectDir);
+
+        // Find the built JAR
+        const buildOutputDir = getBuildOutputDir(path.join(projectDir, 'app'));
+        let jarFile: string | null = null;
+
+        try {
+          const files = await fs.readdir(buildOutputDir);
+          jarFile = files.find(f => f.endsWith('.jar') && !f.includes('-sources')) || null;
+        } catch {
+          // Build output dir might not exist if build failed
+        }
+
+        if (!jarFile) {
+          throw new GradleError(
+            'Build completed but no JAR file found.\n' +
+            `Expected location: ${buildOutputDir}`
+          );
+        }
+
+        const jarPath = path.join(buildOutputDir, jarFile);
+        success(`\n✨ Build successful!`);
+        console.log(`\n📦 Output: ${jarPath}`);
+
+        // Copy to mods folder if requested
+        if (options.copy) {
+          const copySpinner = startSpinner('Copying JAR to mods folder...');
+          
+          // Navigate up to find mods folder
+          // Expected structure: project/Server/Plugins/plugin-name/ (we're here)
+          // Mods folder: project/mods/
+          const modsDir = path.resolve(projectDir, '..', '..', '..', 'mods');
+          
+          try {
+            await fs.access(modsDir);
+            const destPath = path.join(modsDir, jarFile);
+            await fs.copyFile(jarPath, destPath);
+            copySpinner.succeed(`Copied to ${destPath}`);
+          } catch {
+            copySpinner.fail('Could not find mods folder. Copy manually.');
+          }
+        } else {
+          console.log(`\n💡 Tip: Use --copy to automatically copy the JAR to the mods folder`);
+        }
+
+        console.log(`\n🚀 To deploy: Copy the JAR to your Server/mods/ folder`);
+
+      } catch (err) {
+        if (err instanceof GradleError) {
+          error(err.message);
+        } else {
+          error(`Build failed: ${(err as Error).message}`);
+        }
+        process.exit(1);
+      }
+    });
+}

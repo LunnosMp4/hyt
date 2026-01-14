@@ -1,0 +1,46 @@
+{
+  "name": "@lunnos/hyt",
+  "version": "1.0.0",
+  "description": "CLI tool for Hytale plugin development automation",
+  "type": "module",
+  "bin": {
+    "hyt": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "semantic-release": "semantic-release"
+  },
+  "keywords": [
+    "hytale",
+    "plugin",
+    "cli",
+    "development"
+  ],
+  "author": "Lunnos",
+  "license": "ISC",
+  "dependencies": {
+    "chokidar": "^5.0.0",
+    "cli-progress": "^3.12.0",
+    "commander": "^14.0.2",
+    "execa": "^9.6.1",
+    "ora": "^9.0.0"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/chokidar": "^1.7.5",
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^25.0.8",
+    "semantic-release": "^23.0.0",
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/hyt.git"
+  }
+}
