@@ -1,6 +1,6 @@
 {
   "name": "@lunnos/hyt",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "CLI tool for Hytale plugin development automation",
   "type": "module",
   "bin": {

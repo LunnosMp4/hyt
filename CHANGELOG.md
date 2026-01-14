@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/LunnosMp4/hyt/compare/v1.0.1...v1.1.0) (2026-01-14)
+
+
+### Features
+
+* remove auto generate cfr, customizable debounce, remove auto-restart, reduce logs, update docs ([66c762a](https://github.com/LunnosMp4/hyt/commit/66c762a5dc586e495861b81038fa81f9567d18a2))
+
 ## [1.0.1](https://github.com/LunnosMp4/hyt/compare/v1.0.0...v1.0.1) (2026-01-14)
 
 
