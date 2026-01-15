@@ -1,7 +1,9 @@
 # HYT - Hytale Development Tool
 
-[![Release](https://github.com/LunnosMp4/hyt/actions/workflows/release.yml/badge.svg)](https://github.com/LunnosMp4/hyt/actions/workflows/release.yml)
+
 [![NPM](https://nodei.co/npm/@lunnos/hyt.png?compact=true)](https://npmjs.org/package/@lunnos/hyt)
+
+[![Release](https://github.com/LunnosMp4/hyt/actions/workflows/release.yml/badge.svg)](https://github.com/LunnosMp4/hyt/actions/workflows/release.yml)
 
 A command-line interface for Hytale plugin development that automates project setup, building, and hot-reload development workflows.
 
