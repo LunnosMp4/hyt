@@ -72,6 +72,7 @@ This creates a complete project structure with:
 - Gradle build configuration
 
 Options:
+- `--without-docs` - Remove documentation examples from the project
 - `--with-cfr` - Include decompiled reference sources (Takes longer)
 - `--skip-git` - Skip git initialization
 
