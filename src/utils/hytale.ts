@@ -63,7 +63,11 @@ export async function findHytaleInstall(): Promise<string | null> {
 export async function verifyHytaleInstall(hytaleInstallPath: string): Promise<boolean> {
   try {
     const stats = await fs.stat(hytaleInstallPath);
-    return stats.isDirectory();
+    if (!stats.isDirectory()) return false;
+    
+    // Verify Assets.zip exists
+    const hasAssets = await fileExists(path.join(hytaleInstallPath, 'Assets.zip'));
+    return hasAssets;
   } catch {
     return false;
   }

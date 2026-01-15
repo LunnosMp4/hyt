@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import path from 'path';
 import { loadConfig, saveConfig, ConfigSchema } from '../utils/config.js';
 import { detectJava, validateJavaVersion, verifyJavaPath } from '../utils/java.js';
 import { findHytaleInstall, verifyHytaleInstall } from '../utils/hytale.js';
@@ -18,6 +19,15 @@ export function setupCommand(): Command {
 
         const existingConfig = await loadConfig();
         const config: Partial<ConfigSchema> = existingConfig || {};
+        
+        // Validate existing Hytale path in config
+        if (config.hytaleInstallPath) {
+          const isValid = await verifyHytaleInstall(config.hytaleInstallPath);
+          if (!isValid) {
+            warn('Existing Hytale path is invalid, will attempt to re-detect');
+            config.hytaleInstallPath = undefined;
+          }
+        }
 
         let javaPath: string;
         if (options.javaPath) {
@@ -97,7 +107,7 @@ export function setupCommand(): Command {
                 await validateJavaVersion(javaPath);
                 versionValid = true;
               } catch (downloadErr) {
-                error('Failed to download Java')
+                error('Failed to download Java');
                 throw new JavaError(
                   `Could not download Java 25: ${(downloadErr as Error).message}\n` +
                   'Please install Java 25 manually or use --java-path to specify the location.'
@@ -123,11 +133,32 @@ export function setupCommand(): Command {
         if (options.hytalePath) {
           // Manual override
           info(`Using manually specified Hytale path: ${options.hytalePath}`);
-          hytaleInstallPath = options.hytalePath;
+          let basePath = options.hytalePath;
           
-          // Verify path exists
+          // Check if the path already ends with the full structure
+          const subfolderStructure = path.join('install', 'release', 'package', 'game', 'latest');
+          if (!basePath.endsWith(subfolderStructure.replace(/\\/g, path.sep))) {
+            // Try appending the subfolder structure
+            const fullPath = path.join(basePath, subfolderStructure);
+            const fullPathExists = await verifyHytaleInstall(fullPath);
+            
+            if (fullPathExists) {
+              hytaleInstallPath = fullPath;
+              info(`Using Hytale game files at: ${hytaleInstallPath}`);
+            } else {
+              // Fall back to the original path
+              hytaleInstallPath = basePath;
+            }
+          } else {
+            hytaleInstallPath = basePath;
+          }
+          
+          // Verify path exists and has Assets.zip
           if (!(await verifyHytaleInstall(hytaleInstallPath))) {
-            throw new HytaleError(`Hytale installation not found at: ${hytaleInstallPath}`);
+            throw new HytaleError(
+              `Hytale installation not found at: ${hytaleInstallPath}\n` +
+              'Make sure Assets.zip exists in the specified directory.'
+            );
           }
         } else {
           // Auto-detect
