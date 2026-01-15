@@ -6,7 +6,7 @@ import { loadConfig } from '../utils/config.js';
 import { downloadFile, getCfrUrl } from '../utils/download.js';
 import { startSpinner, success, error, info, warn } from '../utils/ui.js';
 import { ConfigError, HytaleError } from '../utils/errors.js';
-
+import { directoryExists } from '../utils/fs.js';
 export function referencesCommand(): Command {
   return new Command('generate-references')
     .description('Generate decompiled reference sources from Hytale server JAR (takes ~10 minutes)')
@@ -136,13 +136,4 @@ export function referencesCommand(): Command {
         process.exit(1);
       }
     });
-}
-
-async function directoryExists(dirPath: string): Promise<boolean> {
-  try {
-    const stats = await fs.stat(dirPath);
-    return stats.isDirectory();
-  } catch {
-    return false;
-  }
 }

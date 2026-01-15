@@ -2,11 +2,12 @@ import { Command } from 'commander';
 import fs from 'fs/promises';
 import path from 'path';
 import { execa } from 'execa';
-import readline from 'readline';
 import { loadConfig } from '../utils/config.js';
 import { downloadFile, getTemplateUrl, getCfrUrl } from '../utils/download.js';
 import { startSpinner, success, error, info, warn } from '../utils/ui.js';
 import { ConfigError, HytaleError } from '../utils/errors.js';
+import { copyDirectory, extractZip, replaceInFiles, askYesNo } from '../utils/fs.js';
+import { toPascalCase } from '../utils/string.js';
 
 const TEMPLATE_VERSION = '0.0.1';
 
@@ -343,82 +344,4 @@ Thumbs.db
         process.exit(1);
       }
     });
-}
-
-async function copyDirectory(src: string, dest: string): Promise<void> {
-  const entries = await fs.readdir(src, { withFileTypes: true });
-  
-  await fs.mkdir(dest, { recursive: true });
-  
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    
-    if (entry.isDirectory()) {
-      await copyDirectory(srcPath, destPath);
-    } else {
-      await fs.copyFile(srcPath, destPath);
-    }
-  }
-}
-
-async function extractZip(zipPath: string, destDir: string): Promise<void> {
-  if (process.platform === 'win32') {
-    await execa('powershell', [
-      '-Command',
-      `Expand-Archive -Path "${zipPath}" -DestinationPath "${destDir}" -Force`
-    ]);
-  } else {
-    await execa('unzip', ['-o', zipPath, '-d', destDir]);
-  }
-}
-
-async function replaceInFiles(dir: string, search: string, replace: string): Promise<void> {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  
-  for (const entry of entries) {
-    const entryPath = path.join(dir, entry.name);
-    
-    if (entry.isDirectory()) {
-      await replaceInFiles(entryPath, search, replace);
-    } else if (entry.isFile()) {
-      // Only process text files
-      const ext = path.extname(entry.name).toLowerCase();
-      const textExtensions = ['.java', '.kt', '.kts', '.gradle', '.json', '.xml', '.properties', '.md', '.txt'];
-      
-      if (textExtensions.includes(ext) || entry.name === 'gradlew') {
-        try {
-          let content = await fs.readFile(entryPath, 'utf-8');
-          if (content.includes(search)) {
-            content = content.replace(new RegExp(search, 'g'), replace);
-            await fs.writeFile(entryPath, content, 'utf-8');
-          }
-        } catch {
-          // Skip binary files or files we can't read
-        }
-      }
-    }
-  }
-}
-
-function toPascalCase(str: string): string {
-  return str
-    .split(/[-_\s]+/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join('');
-}
-
-async function askYesNo(question: string): Promise<boolean> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(`${question} (y/N): `, (answer) => {
-      rl.close();
-      const normalized = answer.trim().toLowerCase();
-      resolve(normalized === 'y' || normalized === 'yes');
-    });
-  });
 }
