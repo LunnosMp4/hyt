@@ -42,5 +42,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/LunnosMp4/hyt.git"
+  },
+  "publishConfig": {
+    "@lunnos:registry": "https://npm.pkg.github.com"
   }
 }
