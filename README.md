@@ -126,17 +126,13 @@ This takes 5-10 minutes and creates reference sources in `Server/Plugins/src-ref
 
 ```
 my-plugin/
-├── Assets.zip              # Hytale game assets
-├── mods/                   # Compiled plugin JARs
-└── Server/
-    ├── HytaleServer.jar
-    └── Plugins/
-        └── my-plugin/      # Your plugin source
-            ├── app/
-            │   └── src/
-            ├── gradle/
-            ├── gradlew
-            └── build.gradle
+├── app/
+│   └── src/                 # Write your plugin code here
+├── mods/                    # Compiled plugin JARs
+├── server/                  # Hytale server files
+├── Assets.zip               # Game assets
+├── build.gradle.kts         # Build configuration
+└── config.json              # Server configuration
 ```
 
 ## Configuration

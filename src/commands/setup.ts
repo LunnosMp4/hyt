@@ -89,14 +89,15 @@ export function setupCommand(): Command {
             if (answer) {
               const downloadSpinner = startSpinner('Downloading Java 25 (this may take a few minutes, ~200MB)...');
               try {
+                downloadSpinner.stop();
                 javaPath = await downloadAndInstallJava();
-                downloadSpinner.succeed(`Java 25 installed successfully to: ${javaPath}`);
+                success(`Java 25 installed successfully to: ${javaPath}`);
                 
                 // Validate the downloaded version
                 await validateJavaVersion(javaPath);
                 versionValid = true;
               } catch (downloadErr) {
-                downloadSpinner.fail('Failed to download Java');
+                error('Failed to download Java')
                 throw new JavaError(
                   `Could not download Java 25: ${(downloadErr as Error).message}\n` +
                   'Please install Java 25 manually or use --java-path to specify the location.'
