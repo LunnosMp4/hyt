@@ -37,21 +37,19 @@ export function devCommand(): Command {
         if (!(await hasGradleWrapper(projectDir))) {
           throw new GradleError(
             'No Gradle wrapper found in current directory.\n' +
-            'Make sure you are in your plugin directory (e.g., Server/Plugins/your-plugin/)'
+            'Make sure you are in your plugin project root directory'
           );
         }
 
-        // Determine project structure
-        // Expected: we're in project/Server/Plugins/plugin-name/
-        // Project root: ../../../
-        // Server dir: ../../
-        const projectRoot = path.resolve(projectDir, '..', '..', '..');
-        const serverDir = path.resolve(projectDir, '..', '..');
-        const modsDir = path.join(projectRoot, 'mods');
+        // Determine project structure (new layout)
+        // Expected: we're in project root (where gradlew is)
+        // Server: ./server/Server/
+        // Mods: ./mods/
+        const modsDir = path.join(projectDir, 'mods');
+        const serverDir = path.join(projectDir, 'server', 'Server');
         const serverJarPath = path.join(serverDir, 'HytaleServer.jar');
-        const assetsPath = path.join(projectRoot, 'Assets.zip');
+        const assetsPath = path.join(projectDir, 'Assets.zip');
 
-        // Verify required files exist
         try {
           await fs.access(serverJarPath);
           await fs.access(assetsPath);
@@ -59,7 +57,7 @@ export function devCommand(): Command {
           throw new HytaleError(
             'Hytale server files not found.\n' +
             `Expected structure:\n` +
-            `  - Server/HytaleServer.jar\n` +
+            `  - server/Server/HytaleServer.jar\n` +
             `  - Assets.zip\n` +
             `Make sure you ran "hyt init" to create the project structure.`
           );
@@ -86,7 +84,7 @@ export function devCommand(): Command {
           javaPath: config.javaPath,
           serverJarPath,
           assetsPath,
-          workingDir: projectRoot,
+          workingDir: projectDir,
         };
 
         try {

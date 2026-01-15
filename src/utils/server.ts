@@ -8,7 +8,7 @@ let serverProcess: ResultPromise | null = null;
 export interface ServerOptions {
   javaPath: string;
   serverJarPath: string;
-  assetsPath: string;
+  assetsPath?: string;
   workingDir: string;
 }
 
@@ -22,10 +22,16 @@ export async function launchHytaleServer(options: ServerOptions): Promise<Result
       await stopHytaleServer();
     }
 
+    // Build command args - only include --assets if provided
+    const args = ['-jar', serverJarPath];
+    if (assetsPath) {
+      args.push('--assets', assetsPath);
+    }
+
     // Launch server with output streaming
     serverProcess = execa(
       javaPath,
-      ['-jar', serverJarPath, '--assets', assetsPath],
+      args,
       {
         cwd: workingDir,
         stdio: 'inherit', // Stream output to console

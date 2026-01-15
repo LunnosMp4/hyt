@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { directoryExists, fileExists } from './fs.js';
 import { HytaleError } from './errors.js';
 
 /** Common Hytale installation locations by platform */
@@ -56,24 +57,6 @@ export async function findHytaleInstall(): Promise<string | null> {
   }
   
   return null;
-}
-
-async function directoryExists(dirPath: string): Promise<boolean> {
-  try {
-    const stats = await fs.stat(dirPath);
-    return stats.isDirectory();
-  } catch {
-    return false;
-  }
-}
-
-async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    const stats = await fs.stat(filePath);
-    return stats.isFile();
-  } catch {
-    return false;
-  }
 }
 
 /** Verify Hytale installation path is valid */

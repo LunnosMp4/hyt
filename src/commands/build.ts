@@ -20,7 +20,7 @@ export function buildCommand(): Command {
         if (!(await hasGradleWrapper(projectDir))) {
           throw new GradleError(
             'No Gradle wrapper found in current directory.\n' +
-            'Make sure you are in your plugin directory (e.g., Server/Plugins/your-plugin/)'
+            'Make sure you are in your plugin project root directory'
           );
         }
 
@@ -54,10 +54,8 @@ export function buildCommand(): Command {
         if (options.copy !== false) {
           const copySpinner = startSpinner('Copying JAR to mods folder...');
           
-          // Navigate up to find mods folder
-          // Expected structure: project/Server/Plugins/plugin-name/ (we're here)
-          // Mods folder: project/mods/
-          const modsDir = path.resolve(projectDir, '..', '..', '..', 'mods');
+          // New structure: mods folder is directly in project root
+          const modsDir = path.resolve(projectDir, 'mods');
           
           try {
             await fs.access(modsDir);
@@ -71,7 +69,9 @@ export function buildCommand(): Command {
           info('Skipped copying JAR (--no-copy flag used)');
         }
 
-        console.log(`\n🚀 Ready to test in Server/mods/ folder`);
+        console.log(`\n🚀 Ready to test in mods/ folder`);
+
+        process.exit(0);
 
       } catch (err) {
         if (err instanceof GradleError) {

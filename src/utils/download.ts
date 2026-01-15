@@ -5,7 +5,7 @@ import { createWriteStream } from 'fs';
 import path from 'path';
 import cliProgress from 'cli-progress';
 
-const TEMPLATE_URL = 'https://github.com/hytale-france/example-mod/archive/refs/tags/0.0.1.zip';
+const TEMPLATE_URL = 'https://github.com/hytale-france/example-mod/archive/refs/tags/v0.0.2-HY%232026.01.13-50e69c385.zip';
 const CFR_URL = 'https://www.benf.org/other/cfr/cfr-0.152.jar';
 
 /** Download a file from URL to destination with progress bar */

@@ -5,7 +5,7 @@ import { findHytaleInstall, verifyHytaleInstall } from '../utils/hytale.js';
 import { downloadAndInstallJava, hasInstalledJava, getJavaExecutablePathAsync } from '../utils/javaDownload.js';
 import { startSpinner, success, error, info, warn } from '../utils/ui.js';
 import { JavaError, HytaleError, ConfigError } from '../utils/errors.js';
-import readline from 'readline';
+import { askYesNo } from '../utils/fs.js';
 
 export function setupCommand(): Command {
   return new Command('setup')
@@ -42,7 +42,7 @@ export function setupCommand(): Command {
               console.log('Would you like HYT to download and install Java 25 automatically?');
               console.log('(It will be installed to ~/.hyt/java25/ and will not affect your system Java)\n');
               
-              const answer = await askYesNo('Download Java 25 now?');
+              const answer = await askYesNo('Download Java 25 now?', true);
               
               if (answer) {
                 const downloadSpinner = startSpinner('Downloading Java 25 (this may take a few minutes, ~200MB)...');
@@ -84,7 +84,7 @@ export function setupCommand(): Command {
             console.log('\n💡 Would you like HYT to download and install Java 25 automatically?');
             console.log('(It will be installed to ~/.hyt/java25/ and will not affect your system Java)\n');
             
-            const answer = await askYesNo('Download Java 25 now?');
+            const answer = await askYesNo('Download Java 25 now?', true);
             
             if (answer) {
               const downloadSpinner = startSpinner('Downloading Java 25 (this may take a few minutes, ~200MB)...');
@@ -157,6 +157,8 @@ export function setupCommand(): Command {
         console.log('  hyt build                - Build your plugin');
         console.log('  hyt dev                  - Start development mode with hot reload');
 
+        process.exit(0);
+
       } catch (err) {
         if (err instanceof JavaError || err instanceof HytaleError || err instanceof ConfigError) {
           error(err.message);
@@ -166,19 +168,4 @@ export function setupCommand(): Command {
         process.exit(1);
       }
     });
-}
-
-async function askYesNo(question: string): Promise<boolean> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(`${question} (Y/n): `, (answer) => {
-      rl.close();
-      const normalized = answer.trim().toLowerCase();
-      resolve(normalized === '' || normalized === 'y' || normalized === 'yes');
-    });
-  });
 }
