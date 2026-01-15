@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/LunnosMp4/hyt/compare/v2.0.1...v2.0.2) (2026-01-15)
+
+
+### Bug Fixes
+
+* enhance Hytale installation validation and path handling in setup command ([60bb84e](https://github.com/LunnosMp4/hyt/commit/60bb84efa629bc51d3302bf33abe18720682ffda))
+
 ## [2.0.1](https://github.com/LunnosMp4/hyt/compare/v2.0.0...v2.0.1) (2026-01-15)
 
 
