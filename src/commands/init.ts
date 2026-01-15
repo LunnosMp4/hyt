@@ -170,6 +170,50 @@ export function initCommand(): Command {
           // File might already be renamed or in different location
         }
         
+        // Rename package directory structure from org/example to com/packageName
+        const mainJavaDir = path.join(pluginSourceDir, 'app', 'src', 'main', 'java');
+        const testJavaDir = path.join(pluginSourceDir, 'app', 'src', 'test', 'java');
+        
+        // Create new package structure
+        const newPackageDir = path.join('com', packageName);
+        const newMainPackageDir = path.join(mainJavaDir, newPackageDir);
+        const newTestPackageDir = path.join(testJavaDir, newPackageDir);
+        
+        await fs.mkdir(newMainPackageDir, { recursive: true });
+        await fs.mkdir(newTestPackageDir, { recursive: true });
+        
+        // Move files from org/example to com/packageName
+        const oldMainPackageDir = path.join(mainJavaDir, 'org', 'example');
+        const oldTestPackageDir = path.join(testJavaDir, 'org', 'example');
+        
+        try {
+          const mainFiles = await fs.readdir(oldMainPackageDir);
+          for (const file of mainFiles) {
+            await fs.rename(
+              path.join(oldMainPackageDir, file),
+              path.join(newMainPackageDir, file)
+            );
+          }
+          // Clean up old directory structure
+          await fs.rm(path.join(mainJavaDir, 'org'), { recursive: true, force: true });
+        } catch {
+          // Directory might not exist or already moved
+        }
+        
+        try {
+          const testFiles = await fs.readdir(oldTestPackageDir);
+          for (const file of testFiles) {
+            await fs.rename(
+              path.join(oldTestPackageDir, file),
+              path.join(newTestPackageDir, file)
+            );
+          }
+          // Clean up old directory structure
+          await fs.rm(path.join(testJavaDir, 'org'), { recursive: true, force: true });
+        } catch {
+          // Directory might not exist or already moved
+        }
+        
         renameSpinner.succeed('Project name configured');
 
         // Download CFR (optional)
@@ -288,6 +332,7 @@ Thumbs.db
 💡 Generate decompiled reference sources to explore the Hytale API
    hyt generate-references    # Takes ~10 minutes
 `);
+        process.exit(0);
 
       } catch (err) {
         if (err instanceof ConfigError || err instanceof HytaleError) {

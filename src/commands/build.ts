@@ -9,7 +9,7 @@ import { GradleError } from '../utils/errors.js';
 export function buildCommand(): Command {
   return new Command('build')
     .description('Build your Hytale plugin')
-    .option('--copy', 'Copy built JAR to mods folder after build')
+    .option('--no-copy', 'Skip copying built JAR to mods folder after build')
     .action(async (options) => {
       try {
         const projectDir = process.cwd();
@@ -50,8 +50,8 @@ export function buildCommand(): Command {
         success(`\n✨ Build successful!`);
         console.log(`\n📦 Output: ${jarPath}`);
 
-        // Copy to mods folder if requested
-        if (options.copy) {
+        // Copy to mods folder by default (unless --no-copy is specified)
+        if (options.copy !== false) {
           const copySpinner = startSpinner('Copying JAR to mods folder...');
           
           // Navigate up to find mods folder
@@ -68,10 +68,10 @@ export function buildCommand(): Command {
             copySpinner.fail('Could not find mods folder. Copy manually.');
           }
         } else {
-          console.log(`\n💡 Tip: Use --copy to automatically copy the JAR to the mods folder`);
+          info('Skipped copying JAR (--no-copy flag used)');
         }
 
-        console.log(`\n🚀 To deploy: Copy the JAR to your Server/mods/ folder`);
+        console.log(`\n🚀 Ready to test in Server/mods/ folder`);
 
       } catch (err) {
         if (err instanceof GradleError) {

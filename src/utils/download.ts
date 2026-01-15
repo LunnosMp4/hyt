@@ -40,13 +40,14 @@ export async function downloadFile(url: string, destPath: string, maxRedirects =
 
       const contentLength = parseInt(response.headers['content-length'] || '0', 10);
       
-      // Create progress bar
+      // Create progress bar - output to stderr to avoid conflicts with spinners
       const progressBar = new cliProgress.SingleBar({
         format: '{filename} |{bar}| {percentage}% || {value}/{total} bytes || ETA: {eta}s',
         barCompleteChar: '\u2588',
         barIncompleteChar: '\u2591',
         hideCursor: true,
         etaBuffer: 10,
+        stream: process.stderr,
       } as any);
 
       if (contentLength > 0) {
@@ -70,6 +71,8 @@ export async function downloadFile(url: string, destPath: string, maxRedirects =
       fileStream.on('finish', () => {
         if (contentLength > 0) {
           progressBar.stop();
+          // Clear the line to prevent overlap with next output
+          process.stderr.write('\n');
         }
         fileStream.close();
         resolve();
@@ -78,6 +81,7 @@ export async function downloadFile(url: string, destPath: string, maxRedirects =
       fileStream.on('error', (err) => {
         if (contentLength > 0) {
           progressBar.stop();
+          process.stderr.write('\n');
         }
         fs.unlink(destPath).catch(() => {}); // Clean up partial file
         reject(err);

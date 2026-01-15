@@ -16,8 +16,9 @@ let rebuildTimeout: NodeJS.Timeout | null = null;
 
 export function devCommand(): Command {
   return new Command('dev')
-    .description('Start development mode with hot reload')
+    .description('Start development mode')
     .option('--no-initial-build', 'Skip initial build on startup')
+    .option('--watch', 'Enable auto-rebuild on file changes')
     .option('--debounce <seconds>', 'Seconds to wait after last change before rebuilding (default: 5)', '5')
     .action(async (options) => {
       try {
@@ -64,18 +65,19 @@ export function devCommand(): Command {
           );
         }
 
-        // Initial build
+        // Initial build and copy (always done unless --no-initial-build)
         if (options.initialBuild !== false) {
-          info('Running initial build...\n');
+          info('Building plugin before starting server...\n');
           try {
             await runGradleBuild(projectDir);
-            success('✔ Initial build complete\n');
+            success('✔ Build complete\n');
           } catch (err) {
             throw new GradleError('Initial build failed. Fix the errors and try again.');
           }
 
           // Copy JAR to mods folder
           await copyJarToMods(projectDir, modsDir);
+          console.log('');
         }
 
         // Start Hytale server
@@ -88,7 +90,7 @@ export function devCommand(): Command {
         };
 
         try {
-          await launchHytaleServer(serverOptions);
+          launchHytaleServer(serverOptions); // Don't await - let it run in background
           success('✔ Hytale server started\n');
           console.log('📝 Once the server console is ready, run the authentication command:');
           console.log('   /auth login device\n');
@@ -96,53 +98,60 @@ export function devCommand(): Command {
           throw new HytaleError(`Failed to start server: ${(err as Error).message}`);
         }
 
-        // Start watching for file changes
-        info('👀 Watching for file changes...\n');
-        console.log('💡 Files will auto-rebuild after changes. Restart server manually to apply updates.');
-        console.log('Press Ctrl+C to stop development mode\n');
+        // Start watching for file changes (only if --watch flag is provided)
+        if (options.watch) {
+          info('👀 Watching for file changes...\n');
+          console.log('💡 Files will auto-rebuild to check for errors.');
+          console.log('⚠️  You need to restart the server manually to apply plugin changes.');
+          console.log('Press Ctrl+C to stop development mode\n');
 
-        const debounceMs = parseInt(options.debounce) * 1000;
-        const srcDir = path.join(projectDir, 'app', 'src');
-        
-        watcher = watchFiles(srcDir, {
-          onFileChange: async (filePath: string) => {
-            if (isRebuilding) {
-              return;
-            }
-
-            if (rebuildTimeout) {
-              clearTimeout(rebuildTimeout);
-            }
-
-            const fileName = path.basename(filePath);
-            console.log(`\n📝 ${fileName} changed`);
-
-            rebuildTimeout = setTimeout(async () => {
-              isRebuilding = true;
-
-              try {
-                // Rebuild
-                const buildSpinner = startSpinner('Building...');
-                await runGradleBuild(projectDir);
-                buildSpinner.succeed('Build complete');
-
-                // Copy new JAR
-                await copyJarToMods(projectDir, modsDir);
-
-                success('✨ Plugin updated! Restart server to apply changes.\n');
-              } catch (err) {
-                if (err instanceof GradleError) {
-                  error(`Build failed: ${err.message}`);
-                } else {
-                  error(`Build failed: ${(err as Error).message}`);
-                }
-                info('Fix the errors and save again.\n');
-              } finally {
-                isRebuilding = false;
+          const debounceMs = parseInt(options.debounce) * 1000;
+          const srcDir = path.join(projectDir, 'app', 'src');
+          
+          watcher = watchFiles(srcDir, {
+            onFileChange: async (filePath: string) => {
+              if (isRebuilding) {
+                return;
               }
-            }, debounceMs);
-          },
-        });
+
+              if (rebuildTimeout) {
+                clearTimeout(rebuildTimeout);
+              }
+
+              const fileName = path.basename(filePath);
+              console.log(`\n📝 ${fileName} changed`);
+
+              rebuildTimeout = setTimeout(async () => {
+                isRebuilding = true;
+
+                try {
+                  // Rebuild with force to ensure changes are compiled
+                  const buildSpinner = startSpinner('Building...');
+                  await runGradleBuild(projectDir, true); // Force rebuild
+                  buildSpinner.succeed('Build complete');
+
+                  // Copy new JAR
+                  await copyJarToMods(projectDir, modsDir);
+
+                  success('✨ Build successful! Restart server with Ctrl+C to apply changes.\n');
+                } catch (err) {
+                  if (err instanceof GradleError) {
+                    error(`Build failed: ${err.message}`);
+                  } else {
+                    error(`Build failed: ${(err as Error).message}`);
+                  }
+                  info('Fix the errors and save again.\n');
+                } finally {
+                  isRebuilding = false;
+                }
+              }, debounceMs);
+            },
+          });
+        } else {
+          console.log('💡 Auto-rebuild disabled. Restart with Ctrl+C when you make changes.');
+          console.log('💡 Use --watch to enable live error checking during development.');
+          console.log('Press Ctrl+C to stop the server\n');
+        }
 
         const cleanup = async () => {
           console.log('\n\n🛑 Shutting down...');
@@ -205,9 +214,20 @@ async function copyJarToMods(projectDir: string, modsDir: string): Promise<void>
     const srcPath = path.join(buildOutputDir, jarFile);
     const destPath = path.join(modsDir, jarFile);
     
+    // Verify source file exists
+    await fs.access(srcPath);
+    
+    // Copy the file
     await fs.copyFile(srcPath, destPath);
-    info(`✔ Copied ${jarFile} to mods/`);
+    
+    // Verify destination file exists
+    await fs.access(destPath);
+    
+    info(`✔ Copied ${jarFile} to ${destPath}`);
   } catch (err) {
+    error(`Failed to copy JAR: ${(err as Error).message}`);
+    error(`Source: ${buildOutputDir}`);
+    error(`Destination: ${modsDir}`);
     throw new GradleError(`Failed to copy JAR: ${(err as Error).message}`);
   }
 }

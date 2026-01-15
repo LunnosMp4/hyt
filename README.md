@@ -18,12 +18,12 @@ A command-line interface for Hytale plugin development that automates project se
 **Build System**
 - Gradle wrapper integration
 - One-command builds
-- Automatic JAR output to mods folder
+- Automatic JAR output to mods folder (use `--no-copy` to skip)
 
 **Development Mode**
-- File watching with automatic rebuild on changes
-- Hot-reload server restart
+- Optional file watching with auto-rebuild on changes (use `--watch` flag)
 - Integrated Hytale server management
+- Always builds and copies before server startup
 - Live feedback with progress indicators
 
 ## Requirements
@@ -67,7 +67,7 @@ This creates a complete project structure with:
 - Gradle build configuration
 
 Options:
-- `--skip-cfr` - Skip decompiler download
+- `--with-cfr` - Include decompiled reference sources (Takes longer)
 - `--skip-git` - Skip git initialization
 
 ### Build Plugin
@@ -77,12 +77,14 @@ cd my-plugin/Server/Plugins/my-plugin
 hyt build
 ```
 
+Automatically builds your plugin and copies the JAR to the mods folder.
+
 Options:
-- `--copy` - Automatically copy JAR to mods folder
+- `--no-copy` - Skip copying JAR to mods folder
 
 ### Development Mode
 
-Start development mode with automatic rebuild on file changes:
+Start development mode to run your Hytale server:
 
 ```bash
 cd my-plugin/Server/Plugins/my-plugin
@@ -91,15 +93,17 @@ hyt dev
 
 This will:
 1. Build your plugin
-2. Start the Hytale server
-3. Watch for file changes
-4. Auto-rebuild when you save (with 5-second debounce)
-5. Copy updated JAR to mods folder
+2. Copy JAR to mods folder
+3. Start the Hytale server with your latest plugin
 
-**Note:** The server does NOT auto-restart. After changes are built, manually restart the server to apply updates.
+**Note:** The server does NOT auto-restart. When you make code changes, you must:
+1. Stop the server with Ctrl+C
+2. Make your changes
+3. Run `hyt dev` again to rebuild and restart
 
 Options:
 - `--no-initial-build` - Skip initial build on startup
+- `--watch` - Enable file watching for live error checking (auto-rebuild on changes, but server restart still required)
 - `--debounce <seconds>` - Seconds to wait after last change before rebuilding (default: 5)
 
 ### Generate Reference Sources
@@ -110,7 +114,7 @@ Optionally generate decompiled Hytale server sources for API exploration:
 hyt generate-references
 ```
 
-This takes 5-10 minutes and creates reference sources in `Server/Plugins/src-ref/`. Useful for understanding the Hytale API.
+This takes 5-10 minutes and creates reference sources in `Server/Plugins/src-ref/`. Useful for understanding the Hytale API and for IDE code completion.
 
 ## Project Structure
 

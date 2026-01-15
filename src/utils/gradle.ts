@@ -3,13 +3,14 @@ import path from 'path';
 import { GradleError } from './errors.js';
 
 /** Run Gradle build in the specified project directory */
-export async function runGradleBuild(projectDir: string): Promise<void> {
+export async function runGradleBuild(projectDir: string, forceRebuild: boolean = false): Promise<void> {
   const isWindows = process.platform === 'win32';
   const gradleWrapper = isWindows ? 'gradlew.bat' : './gradlew';
   const gradlePath = path.join(projectDir, gradleWrapper);
 
   try {
-    await execa(gradlePath, ['build'], {
+    const args = forceRebuild ? ['clean', 'build', '--rerun-tasks'] : ['build'];
+    await execa(gradlePath, args, {
       cwd: projectDir,
       stdio: 'inherit', // Stream output directly to terminal
     });
