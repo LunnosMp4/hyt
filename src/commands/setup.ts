@@ -131,14 +131,13 @@ export function setupCommand(): Command {
         // Hytale installation detection/validation
         let hytaleInstallPath: string;
         if (options.hytalePath) {
-          // Manual override
-          info(`Using manually specified Hytale path: ${options.hytalePath}`);
-          let basePath = options.hytalePath;
+          const cleanPath = path.normalize(options.hytalePath.replace(/['"]/g, ''));
+          info(`Using manually specified Hytale path: ${cleanPath}`);
+          let basePath = cleanPath;
           
           // Check if the path already ends with the full structure
           const subfolderStructure = path.join('install', 'release', 'package', 'game', 'latest');
           if (!basePath.endsWith(subfolderStructure.replace(/\\/g, path.sep))) {
-            // Try appending the subfolder structure
             const fullPath = path.join(basePath, subfolderStructure);
             const fullPathExists = await verifyHytaleInstall(fullPath);
             
@@ -146,7 +145,6 @@ export function setupCommand(): Command {
               hytaleInstallPath = fullPath;
               info(`Using Hytale game files at: ${hytaleInstallPath}`);
             } else {
-              // Fall back to the original path
               hytaleInstallPath = basePath;
             }
           } else {
