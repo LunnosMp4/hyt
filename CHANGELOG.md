@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/LunnosMp4/hyt/compare/v2.0.0...v2.0.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* improve Java installation feedback in setup command ([ebba827](https://github.com/LunnosMp4/hyt/commit/ebba827d392ce49c6a08e0f69d4dd8aeb71cf685))
+
 # [2.0.0](https://github.com/LunnosMp4/hyt/compare/v1.1.3...v2.0.0) (2026-01-15)
 
 
