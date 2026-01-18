@@ -58,7 +58,7 @@ export function devCommand(): Command {
         } catch {
           throw new HytaleError(
             'Hytale server files not found.\n' +
-            `Expected structure:\n` +
+            `Expected structure in ${options.dir || projectDir}:\n` +
             `  - server/Server/HytaleServer.jar\n` +
             `  - Assets.zip\n` +
             `Make sure you ran "hyt init" to create the project structure.`
