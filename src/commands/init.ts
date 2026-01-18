@@ -185,32 +185,6 @@ export function initCommand(): Command {
         
         renameSpinner.succeed('Project name configured');
 
-
-        ///////////// Fix plugin configuration. Remove after template is updated /////////////
-        // const fixConfigSpinner = startSpinner('Fixing plugin configuration...');
-        // try {
-        //   const mainClassFile = path.join(newMainPackageDir, `${pascalName}.java`);
-        //   let mainClassContent = await fs.readFile(mainClassFile, 'utf-8');
-          
-        //   mainClassContent = mainClassContent.replace(
-        //     /(@Override\s+public void setup\(\)\s*\{\s*)config = withConfig\(MyConfig\.CODEC\);/,
-        //     '$1// Config is initialized in constructor'
-        //   );
-          
-        //   if (!mainClassContent.includes('config = withConfig(MyConfig.CODEC)')) {
-        //     mainClassContent = mainClassContent.replace(
-        //       /(public\s+\w+\(JavaPluginInit init\)\s*\{\s*super\(init\);)/,
-        //       '$1\n        config = withConfig(MyConfig.CODEC);'
-        //     );
-        //   }
-          
-        //   await fs.writeFile(mainClassFile, mainClassContent);
-        //   fixConfigSpinner.succeed('Plugin configuration fixed');
-        // } catch (err) {
-        //   fixConfigSpinner.warn('Could not fix plugin configuration');
-        // }
-        //////////////////////////////////////////////////////////////////////////////////////
-
         // Remove docs folder if --without-docs flag is set
         if (options.withoutDocs) {
           const docsSpinner = startSpinner('Removing documentation examples...');
