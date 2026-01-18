@@ -57,7 +57,6 @@ export function devCommand(): Command {
           await fs.access(assetsPath);
         } catch {
           throw new HytaleError(
-            options.dir + '\n' +
             'Hytale server files not found.\n' +
             `Expected structure:\n` +
             `  - server/Server/HytaleServer.jar\n` +
