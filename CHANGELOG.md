@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/LunnosMp4/hyt/compare/v2.1.0...v2.1.1) (2026-01-18)
+
+
+### Bug Fixes
+
+* allow unknown options for set-jvm-args command in config ([e54c1c4](https://github.com/LunnosMp4/hyt/commit/e54c1c4dba402d9157da33e584cdeaa035f22606))
+
 # [2.1.0](https://github.com/LunnosMp4/hyt/compare/v2.0.3...v2.1.0) (2026-01-15)
 
 
