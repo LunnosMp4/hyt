@@ -47,6 +47,7 @@ Examples:
     .description('Set JVM arguments for the Hytale server (heap size, GC tuning, etc.)')
     .argument('[args...]', 'JVM arguments (e.g., -Xmx4G -Xms2G)')
     .option('--reset', 'Reset to default JVM arguments (-Xmx2G -Xms1G)')
+    .allowUnknownOption()
     .addHelpText('after', `
 Examples:
   $ hyt config set-jvm-args -Xmx4G -Xms2G
