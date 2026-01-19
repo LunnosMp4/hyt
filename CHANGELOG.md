@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/LunnosMp4/hyt/compare/v2.2.0...v2.3.0) (2026-01-19)
+
+
+### Features
+
+* add dir option for specifying location of server root directory ([5e08302](https://github.com/LunnosMp4/hyt/commit/5e08302dd49b53aea263eac94141f0d9180dc0e1))
+
 # [2.2.0](https://github.com/LunnosMp4/hyt/compare/v2.1.1...v2.2.0) (2026-01-18)
 
 
