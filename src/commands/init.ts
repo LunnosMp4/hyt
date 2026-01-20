@@ -20,7 +20,8 @@ export function initCommand(): Command {
     .option('--decompiler <type>', 'Generate reference sources with specified decompiler: cfr or vineflower (takes ~10 minutes)')
     .option('--without-docs', 'Remove documentation examples from the project')
     .option('--skip-git', 'Skip git initialization')
-    .action(async (projectName: string, options: { decompiler?: string; withoutDocs?: boolean; skipGit?: boolean }) => {
+    .option('--dir <directory>', 'Root directory for server and mods.')
+    .action(async (projectName: string, options: { decompiler?: string; withoutDocs?: boolean; skipGit?: boolean, dir?: string }) => {
       try {
         console.log(`\n🚀 Creating new Hytale plugin project: ${projectName}\n`);
 
@@ -34,7 +35,7 @@ export function initCommand(): Command {
         const workspaceDir = process.cwd();
         const projectDir = path.join(workspaceDir, projectName);
         const serverDir = path.join(projectDir, 'server', 'Server');
-        const modsDir = path.join(projectDir, 'mods');
+        const modsDir = path.join(options.dir || projectDir, 'mods');
         const srcRefDir = path.join(projectDir, 'src-ref');
 
         let savedCfrPath: string | null = null;
@@ -116,8 +117,16 @@ export function initCommand(): Command {
         const hytaleAssetsPath = path.join(config.hytaleInstallPath, 'Assets.zip');
         
         try {
-          await copyDirectory(hytaleServerPath, serverDir);
-          await fs.copyFile(hytaleAssetsPath, path.join(projectDir, 'Assets.zip'));
+          if(options.dir) {
+            await copyDirectory(hytaleServerPath, serverDir);
+            await copyDirectory(hytaleServerPath, path.join(options.dir, 'server', 'Server'));
+
+            await fs.copyFile(hytaleAssetsPath, path.join(options.dir, 'Assets.zip'));
+          } else {
+            await copyDirectory(hytaleServerPath, serverDir);
+
+            await fs.copyFile(hytaleAssetsPath, path.join(projectDir, 'Assets.zip'));
+          }
           serverCopySpinner.succeed('Server files copied');
         } catch (err) {
           serverCopySpinner.fail('Failed to copy server files');

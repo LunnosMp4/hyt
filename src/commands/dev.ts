@@ -20,7 +20,7 @@ export function devCommand(): Command {
     .option('--no-initial-build', 'Skip initial build on startup')
     .option('--watch', 'Enable auto-rebuild on file changes')
     .option('--debounce <seconds>', 'Seconds to wait after last change before rebuilding (default: 5)', '5')
-    .option('--dir <directory>', 'Root directory for server and mods.', process.cwd())
+    .option('--dir <directory>', 'Root directory for server and mods.')
     .action(async (options) => {
       try {
         console.log('\n🔥 Starting development mode...\n');

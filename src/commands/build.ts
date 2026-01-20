@@ -10,6 +10,7 @@ export function buildCommand(): Command {
   return new Command('build')
     .description('Build your Hytale plugin')
     .option('--no-copy', 'Skip copying built JAR to mods folder after build')
+    .option('--dir <directory>', 'Root directory for server and mods.')
     .action(async (options) => {
       try {
         const projectDir = process.cwd();
@@ -55,7 +56,7 @@ export function buildCommand(): Command {
           const copySpinner = startSpinner('Copying JAR to mods folder...');
           
           // New structure: mods folder is directly in project root
-          const modsDir = path.resolve(projectDir, 'mods');
+          const modsDir = path.resolve(options.dir || projectDir, 'mods');
           
           try {
             await fs.access(modsDir);
