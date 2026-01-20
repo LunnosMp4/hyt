@@ -73,7 +73,7 @@ This creates a complete project structure with:
 
 Options:
 - `--without-docs` - Remove documentation examples from the project
-- `--with-cfr` - Include decompiled reference sources (Takes longer)
+- `--decompiler <cfr | vineflower>` - Include decompiled reference sources (Takes longer)
 - `--skip-git` - Skip git initialization
 
 ### Build Plugin
