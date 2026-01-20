@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/LunnosMp4/hyt/compare/v2.3.0...v2.4.0) (2026-01-20)
+
+
+### Features
+
+* parity dir option for init and build commands ([c612a27](https://github.com/LunnosMp4/hyt/commit/c612a27055ad8e5eda66d0e7fdad152ac113c320))
+
 # [2.3.0](https://github.com/LunnosMp4/hyt/compare/v2.2.0...v2.3.0) (2026-01-19)
 
 
